@@ -30,11 +30,11 @@
     ```
   - Бэкенд (API + DB + pgAdmin):
     ```
-    just watch profile=core
+    just watch core
     ```
   - Только фронтенд:
     ```
-    just watch profile=client
+    just watch client
     ```
 
 ## Урлы
