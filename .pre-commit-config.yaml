@@ -8,8 +8,11 @@
 #   git commit --no-verify
 
 fail_fast: false
+default_install_hook_types: ["pre-commit", "commit-msg"]
+ci:
+  autofix_commit_msg: 🎨 [pre-commit.ci] Auto format from pre-commit.com hooks
+  autoupdate_commit_msg: ⬆ [pre-commit.ci] pre-commit autoupdate
 
-# default_install_hook_types: ["pre-commit", "commit-msg"]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
@@ -44,7 +47,3 @@ repos:
     rev: v1.1.7
     hooks:
       - id: committed
-
-ci:
-  autofix_commit_msg: 🎨 [pre-commit.ci] Auto format from pre-commit.com hooks
-  autoupdate_commit_msg: ⬆ [pre-commit.ci] pre-commit autoupdate
