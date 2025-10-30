@@ -1,0 +1,123 @@
+services:
+  client:
+    container_name: client
+    build:
+      context: client
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ./.env
+    ports:
+      - "5173:5173"
+    networks:
+      - postgres
+    develop:
+      watch:
+        - action: sync
+          path: ./client/src
+          target: /app/src
+        - action: sync
+          path: ./client/public
+          target: /app/public
+        - action: sync
+          path: ./client/index.html
+          target: /app/index.html
+
+        - action: sync+restart
+          path: ./client/vite.config.ts
+          target: /app/vite.config.ts
+
+        - action: rebuild
+          path: ./client/package.json
+        - action: rebuild
+          path: ./client/package-lock.json
+
+        - action: restart
+          path: .env
+    profiles: ["all", "client"]
+
+  api:
+    container_name: api
+    build:
+      context: ./app
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ./.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+    networks:
+      - postgres
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+    develop:
+      watch:
+        # Rebuild image when dependencies change
+        - action: rebuild
+          path: ./app/pyproject.toml
+        - action: rebuild
+          path: ./app/uv.lock
+        # Rebuild on Dockerfile changes
+        - action: rebuild
+          path: ./app/Dockerfile.dev
+        # Recreate API container when backend env changes
+        - action: rebuild
+          path: ./.env
+
+    restart: unless-stopped
+    profiles: ["all", "core"]
+
+  migrations:
+    container_name: migrations
+    build:
+      context: ./app
+      dockerfile: Dockerfile.dev
+      target: migrations
+    env_file:
+      - ./.env
+    networks:
+      - postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: no
+    profiles: ["all", "core"]
+
+  postgres:
+    container_name: postgres
+    image: postgres:16.10-alpine3.22
+    volumes:
+      - ./docker/confs/postgresql.conf:/etc/postgresql.conf:ro
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    command: >
+      postgres -c config_file=/etc/postgresql.conf
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    networks:
+      - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 3s
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 20G
+    restart: unless-stopped
+    profiles: ["all", "core"]
+
+volumes:
+  db_data:
+
+networks:
+  postgres:
+    driver: bridge
