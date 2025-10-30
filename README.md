@@ -1,22 +1,46 @@
 # Monorepo
-Complete dev/prod architecture for comfortable development frontend/backend using docker containerisation.
 
-## Initialize environment files
-```
-cp .env.example .env
-```
+Монорепозиторий для быстрого старта фронтенда и бэкенда в Docker:
 
-## Backend
-```
-docker compose -f docker-compose.dev.yml --profile client watch
-```
+- Фронтенд: React + Vite
+- Бэкенд: FastAPI (Python)
+- База: PostgreSQL + pgAdmin
 
-## Frontend
-```
-docker compose -f docker-compose.dev.yml --profile core watch
-```
+Все сервисы управляются через Docker Compose (профили) и `just`.
 
-## Backend+Frontend
-```
-docker compose -f docker-compose.dev.yml --profile all watch
-```
+## Требования
+
+- Docker и Docker Compose v2
+- `just` установлен в системе (https://github.com/casey/just)
+
+## Быстрый старт
+
+- Инициализировать переменные окружения:
+
+  ```
+  just env
+  ```
+
+  (создаст `.env` из `.env.example`).
+
+- Запуск в режиме разработки (live reload):
+  - Все сервисы:
+    ```
+    just watch
+    ```
+  - Бэкенд (API + DB + pgAdmin):
+    ```
+    just watch profile=core
+    ```
+  - Только фронтенд:
+    ```
+    just watch profile=client
+    ```
+
+## Урлы
+
+- Профили Compose: `all` (по умолчанию), `core` (backend), `client` (frontend)
+- URL по умолчанию:
+  - API: `http://localhost:8000`
+  - Frontend: `http://localhost:5173`
+  - pgAdmin: `http://localhost:70` (см. `.env`)

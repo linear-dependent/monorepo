@@ -44,8 +44,6 @@ services:
       - ./.env
     ports:
       - "8000:8000"
-    volumes:
-      - ./app:/app
     networks:
       - postgres
     depends_on:
@@ -64,7 +62,6 @@ services:
         # Recreate API container when backend env changes
         - action: rebuild
           path: ./.env
-
     restart: unless-stopped
     profiles: ["all", "core"]
 
@@ -89,7 +86,7 @@ services:
     image: postgres:16.10-alpine3.22
     volumes:
       - ./docker/confs/postgresql.conf:/etc/postgresql.conf:ro
-      - db_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -115,8 +112,30 @@ services:
     restart: unless-stopped
     profiles: ["all", "core"]
 
+  pgadmin:
+    image: dpage/pgadmin4:9.9
+    container_name: pgadmin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False" # To allow running in desktop mode
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+    ports:
+      - "${PGADMIN_PORT}:80"
+    networks:
+      - postgres
+    restart: unless-stopped
+    profiles: ["all", "core"]
+
 volumes:
-  db_data:
+  postgres_data:
+  pgadmin_data:
 
 networks:
   postgres:
