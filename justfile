@@ -1,30 +1,32 @@
-#!/usr/bin/env just --justfile
+alias b := build
+alias w := watch
+alias d := down
+alias n := nuke
 
-set shell := ["bash", "-uc"]
+set shell := ["sh", "-c"]
 
-# default recipe to display help information
-default:
-  @just --list
+_default:
+    @just --list --unsorted --list-prefix "···· "
 
 # Initialize environment variables
 env:
     cp .env.example .env
 
-# Delete files ignored by git
+# Delete files ignored by `git`
 clean:
-  git clean -Xdf
+    git clean -Xdf
+
+build profile="all" compose="docker-compose.dev.yml":
+    docker compose -f {{ compose }} --profile {{profile}} build --no-cache
 
 up profile="all" compose="docker-compose.dev.yml":
-  docker compose -f {{compose}} --profile {{profile}} up -d --build
-
-build service compose="docker-compose.dev.yml":
-  docker compose -f {{compose}} build --no-cache {{service}}
-
-down compose="docker-compose.dev.yml":
-  docker compose -f {{compose}} down
-
-nuke compose="docker-compose.dev.yml":
-  docker compose -f {{compose}} down -v --remove-orphans
+    docker compose -f {{ compose }} --profile {{ profile }} up -d
 
 watch profile="all" compose="docker-compose.dev.yml":
-  docker compose -f {{compose}} --profile {{profile}} up --watch
+    docker compose -f {{ compose }} --profile {{ profile }} up --watch
+
+down profile="all" compose="docker-compose.dev.yml":
+    docker compose -f {{ compose }} --profile {{ profile }} down
+
+nuke profile="all" compose="docker-compose.dev.yml":
+    docker compose -f {{ compose }} --profile {{ profile }} down -v --remove-orphans

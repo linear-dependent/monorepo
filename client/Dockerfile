@@ -1,35 +1,35 @@
-# =========================================
-# Stage 1: Build the React.js Application
-# =========================================
-ARG NODE_VERSION=24.7.0-alpine
-ARG NGINX_VERSION=alpine3.22
+# # =========================================
+# # Stage 1: Build the React.js Application
+# # =========================================
+# ARG NODE_VERSION=24.7.0-alpine
+# ARG NGINX_VERSION=alpine3.22
 
-# Use a lightweight Node.js image for building (customizable via ARG)
-FROM node:${NODE_VERSION} AS builder
+# # Use a lightweight Node.js image for building (customizable via ARG)
+# FROM node:${NODE_VERSION} AS builder
 
-# Set the working directory inside the container
-WORKDIR /app
+# # Set the working directory inside the container
+# WORKDIR /app
 
-# Copy package-related files first to leverage Docker's caching mechanism
-COPY package.json package-lock.json ./
+# # Copy package-related files first to leverage Docker's caching mechanism
+# COPY package.json package-lock.json ./
 
-# Install project dependencies using npm ci (ensures a clean, reproducible install)
-RUN --mount=type=cache,target=/root/.npm npm ci
+# # Install project dependencies using npm ci (ensures a clean, reproducible install)
+# RUN --mount=type=cache,target=/root/.npm npm ci
 
-# Copy the rest of the application source code into the container
-COPY . .
+# # Copy the rest of the application source code into the container
+# COPY . .
 
-# Build the React.js application (outputs to /app/dist)
-RUN npm run build
+# # Build the React.js application (outputs to /app/dist)
+# RUN npm run build
 
-# Keep a copy of the build outside the mount point we'll use at runtime
-RUN mkdir -p /opt && mv /app/dist /opt/dist
+# # Keep a copy of the build outside the mount point we'll use at runtime
+# RUN mkdir -p /opt && mv /app/dist /opt/dist
 
-# Copy entrypoint that will populate the named volume and exit
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# # Copy entrypoint that will populate the named volume and exit
+# COPY entrypoint.sh /entrypoint.sh
+# RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+# ENTRYPOINT ["/entrypoint.sh"]
 
 # # =========================================
 # # Stage 2: Prepare Nginx to Serve Static Files

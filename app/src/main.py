@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from . import models, schemas, security
 from .db import get_db
 
-app = FastAPI(title="Template API", version="0.1.0")
+app = FastAPI(title="monorepo API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
