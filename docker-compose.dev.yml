@@ -39,7 +39,7 @@ services:
     container_name: api
     build:
       context: ./app
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     env_file:
       - ./.env
     ports:
@@ -69,7 +69,7 @@ services:
     container_name: migrations
     build:
       context: ./app
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
       target: migrations
     env_file:
       - ./.env
