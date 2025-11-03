@@ -5,7 +5,8 @@ alias n := nuke
 
 set shell := ["sh", "-c"]
 
-_default:
+[default]
+_:
     @just --list --unsorted --list-prefix "···· "
 
 # Initialize environment variables
@@ -28,5 +29,6 @@ watch profile="all" compose="docker-compose.dev.yml":
 down profile="all" compose="docker-compose.dev.yml":
     docker compose -f {{ compose }} --profile {{ profile }} down
 
+[confirm]
 nuke profile="all" compose="docker-compose.dev.yml":
     docker compose -f {{ compose }} --profile {{ profile }} down -v --remove-orphans
